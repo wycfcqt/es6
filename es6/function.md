@@ -136,3 +136,104 @@ Math.max(...[14, 3, 77])
 // 等同于
 Math.max(14, 3, 77);
 ```
+4. 扩展运算符作用
+- 合并数组
+```
+//es5
+var a=[1,2,3];
+var b=[4,5,6];
+var c=a.concat(b);
+//es6
+var d=[1,2,3,...b];
+```
+- 与结构赋值结合，生成新的数组(只能放在数组的最后，用于计算)
+```
+const [first, ...rest] = [1, 2, 3, 4, 5];
+first // 1
+rest  // [2, 3, 4, 5]
+```
+- 增加函数的返回值
+- 展开字符串
+```
+/扩展运算符还可以将字符串转为真正的数组。
+[...'hello']
+// [ "h", "e", "l", "l", "o" ]
+//返回字符串长度(能正确识别32位的Unicode字符)
+function length(str) {
+  return [...str].length;
+}
+
+let str = 'x\uD83D\uDE80y';
+
+str.split('').reverse().join('')
+// 'y\uDE80\uD83Dx'
+
+[...str].reverse().join('')
+// 'y\uD83D\uDE80x'
+```
+- 任何Iterator接口的对象，都可以用扩展运算符转为真正的数组
+```
+var nodeList = document.querySelectorAll('div');
+var array = [...nodeList];
+```
+- Map和Set结构，Generator函数 扩展运算符内部调用的是数据结构的Iterator接口，因此只要具有Iterator接口的对象，都可以使用扩展运算符
+```
+let map = new Map([
+  [1, 'one'],
+  [2, 'two'],
+  [3, 'three'],
+]);
+
+let arr = [...map.keys()]; // [1, 2, 3]
+
+//Generator函数运行后，返回一个遍历器对象，因此也可以使用扩展运算符
+var go = function*(){
+  yield 1;
+  yield 2;
+  yield 3;
+};
+
+[...go()] // [1, 2, 3]
+```
+-  **没有实现Iterator接口的对象，使用扩展运算符都会报错**
+### 严格模式 ###
+1. 只要函数参数使用了默认值、解构赋值、或者扩展运算符，那么函数内部就不能显式设定为严格模式，否则会报错
+```
+// 报错
+function doSomething(a, b = a) {
+  'use strict';
+  // code
+}
+
+// 报错
+const doSomething = function ({a, b}) {
+  'use strict';
+  // code
+};
+
+// 报错
+const doSomething = (...a) => {
+  'use strict';
+  // code
+};
+
+const obj = {
+  // 报错
+  doSomething({a, b}) {
+    'use strict';
+    // code
+  }
+};
+```
+2. 全局使用严格模式
+3. 把函数包在一个无参数的立即执行函数里面
+```
+const doSomething = (function () {
+  'use strict';
+  return function(value = 42) {
+    return value;
+  };
+}());
+```
+### name属性 ###
+1. 返回函数名字，es5中如果把一个匿名函数赋值给变量，那么name返回""，es6则返回实际的函数名
